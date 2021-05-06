@@ -121,6 +121,8 @@ sealed trait MyList[+A] {
       tail.reduceLeft[B](head)(op)
     }
   }
+
+
 }
 
 object MyList {
