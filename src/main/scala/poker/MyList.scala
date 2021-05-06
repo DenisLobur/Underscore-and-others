@@ -122,7 +122,27 @@ sealed trait MyList[+A] {
     }
   }
 
+  def sorted[B >: A](implicit ord: (B, B) => Int): MyList[A] = {
+    val m = length / 2
+    if (m == 0) {
+      this
+    } else {
+      val (left, right) = this.splitAt(m)
+      merge(left.sorted, right.sorted)
+    }
+  }
 
+  def merge[B >: A](left: MyList[B], right: MyList[B])(implicit ord: (B, B) => Int): MyList[B] = {
+    (left, right) match {
+      case (Nil, _) => right
+      case (left, Nil) => left
+      case (x :: xs, y :: ys) => if (ord(y, x) > 0) {
+        y :: merge(left, ys)
+      } else {
+        x :: merge(xs, right)
+      }
+    }
+  }
 }
 
 object MyList {
