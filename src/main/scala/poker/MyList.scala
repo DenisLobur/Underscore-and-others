@@ -1,6 +1,7 @@
 package poker
 
 import scala.annotation.tailrec
+import std.Ordering
 
 sealed trait MyList[+A] {
 
@@ -122,21 +123,21 @@ sealed trait MyList[+A] {
     }
   }
 
-  def sorted[B >: A](implicit ord: (B, B) => Int): MyList[A] = {
+  def sorted[B >: A](implicit ord: Ordering[B]): MyList[A] = {
     val m = length / 2
     if (m == 0) {
       this
     } else {
       val (left, right) = this.splitAt(m)
-      merge(left.sorted, right.sorted)
+      merge(left.sorted(ord), right.sorted(ord))(ord)
     }
   }
 
-  def merge[B >: A](left: MyList[B], right: MyList[B])(implicit ord: (B, B) => Int): MyList[B] = {
+  def merge[B >: A](left: MyList[B], right: MyList[B])(implicit ord: Ordering[B]): MyList[B] = {
     (left, right) match {
       case (Nil, _) => right
       case (left, Nil) => left
-      case (x :: xs, y :: ys) => if (ord(y, x) > 0) {
+      case (x :: xs, y :: ys) => if (ord.compare(y, x) > 0) {
         y :: merge(left, ys)
       } else {
         x :: merge(xs, right)
