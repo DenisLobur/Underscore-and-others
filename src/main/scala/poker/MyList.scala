@@ -1,11 +1,16 @@
 package poker
 
+import scala.annotation.tailrec
+
 sealed trait MyList[+A] {
 
   def length: Int = this match {
-    case Nill => 0
+    case Nil => 0
     case _ :: xs => 1 + xs.length
   }
+
+  def length2: Int =
+    foldLeft(0)((acc, _) => acc + 1)
 
   def ::[B >: A](a: B): MyList[B] =
     poker.::(a, this)
@@ -16,7 +21,7 @@ sealed trait MyList[+A] {
     else prefix.head :: prefix.tail ::: this
   }
 
-  def distinct[A](sorted: MyList[A]): MyList[A] = {
+  def distinct[B >: A](sorted: MyList[B]): MyList[B] = {
     sorted match {
       case x :: y :: tail => if (x.equals(y)) distinct(y :: tail) else x :: distinct(y :: tail)
       case _ => sorted
@@ -29,26 +34,26 @@ sealed trait MyList[+A] {
 
   def headOption: Option[A] =
     this match {
-      case Nill => None
+      case Nil => None
       case x :: _ => Some(x)
     }
 
   def isEmpty: Boolean =
     this match {
-      case Nill => true
+      case Nil => true
       case _ => false
     }
 
   def filter(p: A => Boolean): MyList[A] =
     this match {
-      case Nill => Nill
+      case Nil => Nil
       case x :: xs => if (p(x)) x :: xs.filter(p) else xs.filter(p)
     }
 
   def splitAt(i: Int): (MyList[A], MyList[A]) =
     (i, this) match {
-      case (0, _) => (Nill, this)
-      case (_, Nill) => (Nill, Nill)
+      case (0, _) => (Nil, this)
+      case (_, Nil) => (Nil, Nil)
       case (i, x :: xs) => val (left, right) = xs.splitAt(i - 1)
         (x :: left, right)
     }
@@ -56,7 +61,7 @@ sealed trait MyList[+A] {
   def zip[B >: A](that: MyList[B]): MyList[(A, B)] =
     (this, that) match {
       case (x :: xs, y :: ys) => (x, y) :: xs.zip(ys)
-      case _ => Nill
+      case _ => Nil
     }
 
   def drop(n: Int): MyList[A] =
@@ -65,13 +70,13 @@ sealed trait MyList[+A] {
 
   def find(p: A => Boolean): Option[A] =
     this match {
-      case Nill => None
+      case Nil => None
       case x :: xs => if (p(x)) Some(x) else xs.find(p)
     }
 
   def forAll(p: A => Boolean): Boolean =
     this match {
-      case Nill => true
+      case Nil => true
       case x :: xs => p(x) && xs.forAll(p)
     }
 
@@ -79,8 +84,8 @@ sealed trait MyList[+A] {
 
   def mkString(start: String, sep: String, end: String): String = {
     def count(list: MyList[A]): String = list match {
-      case Nill => ""
-      case head :: Nill => s"$head"
+      case Nil => ""
+      case head :: Nil => s"$head"
       case head :: tail => s"$head$sep${count(tail)}"
     }
 
@@ -89,12 +94,43 @@ sealed trait MyList[+A] {
 
   def map[B](f: A => B): MyList[B] =
     this match {
-      case Nill => Nill
+      case Nil => Nil
       case x :: xs => f(x) :: xs.map(f)
     }
+
+  @tailrec
+  final def foldLeft[B](z: B)(op: (B, A) => B): B =
+    this match {
+      case Nil => z
+      case x :: xs => xs.foldLeft(op(z, x))(op)
+    }
+
+  def foldRight[B](z: B)(op: (A, B) => B): B =
+    reverse.foldLeft(z)((a, b) => op(b, a))
+
+  def reverse: MyList[A] =
+    foldLeft(MyList.empty[A])((xs: MyList[A], x) => x :: xs)
+
+  def reduceLeft[B >: A](z: B)(op: (B, A) => B): B =
+    foldLeft(z)(op)
+
+  def reduce[B >: A](op: (B, B) => B): B = {
+    if (isEmpty) {
+      throw new NoSuchElementException("reduce on empty list")
+    } else {
+      tail.reduceLeft[B](head)(op)
+    }
+  }
 }
 
-case object Nill extends MyList[Nothing]
+object MyList {
+  def empty[A]: MyList[A] = Nil
+
+  def apply[A](xs: A*): MyList[A] =
+    xs.foldRight(empty[A])((x, ls) => x :: ls)
+}
+
+case object Nil extends MyList[Nothing]
 
 case class ::[+A](override val head: A, override val tail: MyList[A]) extends MyList[A]
 

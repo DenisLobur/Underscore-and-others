@@ -41,7 +41,7 @@ object Hand {
 
   def ranks(cs: Cards): MyList[Rank] = {
     cs match {
-      case Nill => Nill
+      case Nil => Nil
       case x :: xs => x.rank :: ranks(xs)
     }
   }
@@ -59,8 +59,8 @@ object Hand {
 
   def merge(left: MyList[Rank], right: MyList[Rank]): MyList[Rank] = {
     (left, right) match {
-      case (Nill, right) => right
-      case (left, Nill) => left
+      case (Nil, right) => right
+      case (left, Nil) => left
       case (x :: xs, y :: ys) =>
         if (x.value > y.value) x :: merge(xs, right)
         else y :: merge(left, ys)
@@ -71,7 +71,7 @@ object Hand {
     sorted match {
       case x :: y :: xs if (x == y) => distinct(y :: xs)
       case x :: xs => x :: distinct(xs)
-      case Nill => Nill
+      case Nil => Nil
     }
   }
 }

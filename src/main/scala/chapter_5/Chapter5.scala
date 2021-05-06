@@ -50,7 +50,6 @@ object Chapter5 extends App {
 
   val checkList = Pair(1, End())
   val checkList2 = Pair(2, End())
-  println("compare lists: " + checkList.head.compare()
 
 
 

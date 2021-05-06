@@ -7,7 +7,7 @@ import scala.math.BigDecimal.RoundingMode.HALF_UP
 
 object Chapter1 {
   def main(args: Array[String]): Unit = {
-    val list = 1::2::3::4::Nill
+    val list = 1::2::3::4::Nil
     println(list.forAll(_ < 10))
 
     println(normalDistribution(1.0, 1.0, 1.0))

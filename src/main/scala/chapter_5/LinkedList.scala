@@ -58,9 +58,6 @@ sealed trait LinkedList[+A] {
 
     s"$start${compose(this)}$end"
   }
-
-  def sorted[B >: A](implicit ord: Ordering[B]): LinkedList[A] =
-    ord.compare(_, _)
 }
 
 object LinkedList {
