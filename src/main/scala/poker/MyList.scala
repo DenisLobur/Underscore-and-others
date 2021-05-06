@@ -24,7 +24,7 @@ sealed trait MyList[+A] {
 
   def distinct[B >: A](sorted: MyList[B]): MyList[B] = {
     sorted match {
-      case x :: y :: tail => if (x.equals(y)) distinct(y :: tail) else x :: distinct(y :: tail)
+      case x :: y :: tail => if (x == y) distinct(y :: tail) else x :: distinct(y :: tail)
       case _ => sorted
     }
   }
